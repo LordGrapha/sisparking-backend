@@ -1,7 +1,6 @@
 import express from "express";
 import mongoose, { ConnectOptions } from 'mongoose';
 import Routes from './routes/routes';
-//import * as database from "./db"
 import path = require("path");
 const cors = require('cors');
 
