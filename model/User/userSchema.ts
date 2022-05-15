@@ -5,6 +5,7 @@ export interface IUser  {
     password: string;
     deleted: boolean;
     role: string;
+    license_plates: [string];
     createdAt: Date;
 }
 
@@ -24,10 +25,14 @@ const userSchema = new Schema({
         default: 'visitante',
         enum: ['jefatura','funcionario', 'visitante']
     },
+    license_plate: {
+        type: [String],
+        default: []
+    },
     createdAt: {
         type: Date,
         default: Date.now
     }
 });
 
-export const User = model<IUser>('User', userSchema);
+export const user = model<IUser>('User', userSchema);

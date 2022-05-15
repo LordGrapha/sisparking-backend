@@ -1,14 +1,16 @@
 import * as express from 'express';
-import { IUser, User } from 'model/users';
+import { IUser } from '../model/User/userSchema';
 import UserController from '../controllers/usercontroller';
 import {ReasonPhrases, StatusCodes} from 'http-status-codes';
 
 const app = express.Router();
 
-app.post("/login", (req : any, res : any, next) => {         
-    UserController.getInstance().login(req.body)
+app.post("/login", (req : any, res : any, next) => {
+    console.log(req.body.data);
+          
+    UserController.getInstance().login(req.body.data)
     .then((user : IUser) => {
-        res.status(StatusCodes.OK).json({data : user});
+        res.status(StatusCodes.OK).json(user);
       })
       .catch((err) => {
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({Error : err});
@@ -17,73 +19,41 @@ app.post("/login", (req : any, res : any, next) => {
 
 app.post("/signUp", (req, res, next) => {  
     UserController.getInstance().register(req.body)
-        .then((data: any) => {       
-            //data.rows brings the dataset array with all objects inside.
-            res.status(StatusCodes.CREATED).send(ReasonPhrases.OK);
+        .then((user : IUser) => {
+            console.log("Register - user:");
+            console.log(user);
+            
+            if(user){
+                res.status(StatusCodes.CREATED).send(user);
+            }
+            else {
+                res.status(StatusCodes.INTERNAL_SERVER_ERROR)
+                    .json({message: "El usuario no se logro crear, por favor intente de nuevo"});
+            }
+            
         })
         .catch((err: any) => {
             res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({Error : err});
         });
 });
 
-app.get("/list", (req, res, next) => {   
-    UserController.getInstance().list()
-        .then((data) => {       
-            //data.rows brings the dataset array with all objects inside.   
-            res.json(data.rows);
+app.post("/add_license_plate", (req, res, next) => {  
+    UserController.getInstance().add_license_plate(req.body)
+        .then((result : any) => {
+            console.log(result);
+            
+            if(result){
+                res.status(StatusCodes.OK).send(ReasonPhrases.OK);
+            }
+            else {
+                res.status(StatusCodes.INTERNAL_SERVER_ERROR)
+                    .json({message: "El usuario no se logro actualizar, por favor intente de nuevo"});
+            }
+            
         })
-        .catch((err) => {
-            res.json(err)
-            return "";
+        .catch((err: any) => {
+            res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({Error : err});
         });
-});
-
-app.get("/:email", (req, res, next) => {              
-  UserController.getInstance().findUser(req.params.email)
-      .then((data) => {       
-          //data.rows brings the dataset array with all objects inside.   
-          res.json(data.rows[0]);
-      })
-      .catch((err) => {
-          res.json(err)
-          return "";
-      });
-});
-
-app.put("/delete", (req, res, next) => {          
-  UserController.getInstance().delete(req.body)
-      .then((data) => {       
-          //data.rows brings the dataset array with all objects inside.   
-          res.json(data.rows);
-      })
-      .catch((err) => {
-          res.json(err)
-          return "";
-      });
-});
-
-app.put("/add", (req, res, next) => {          
-  UserController.getInstance().add(req.body)
-      .then((data) => {       
-          //data.rows brings the dataset array with all objects inside.   
-          res.json(data.rows);
-      })
-      .catch((err) => {
-          res.json(err)
-          return "";
-      });
-});
-
-app.put("/update/:user_id", (req, res, next) => {          
-  UserController.getInstance().update(req.params.user_id, req.body)
-      .then((data) => {       
-          //data.rows brings the dataset array with all objects inside.   
-          res.json(data.rows);
-      })
-      .catch((err) => {
-          res.json(err)
-          return "";
-      });
-});
+}); 
 
 export { app as userrouter }
